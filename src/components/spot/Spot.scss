@@ -1,0 +1,19 @@
+td.spot{
+    border: 1px solid fuchsia;
+
+    &.empty{
+        background-color: azure;
+        color:navy;
+    }
+
+    &.owned{
+        background-color: green;
+    }
+    
+    &.enemy{
+        background-color: brown;
+    }
+}
+
+
+

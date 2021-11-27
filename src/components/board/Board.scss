@@ -1,0 +1,16 @@
+div.board{
+    display: flex;
+    flex-direction: column;
+
+    background-color: azure;
+    border: 3px solid fuchsia;
+    color: darkgoldenrod;
+
+    width: 800px;
+    height: 800px;
+}
+
+table{
+    width: 100%;
+    height: 100%;
+}

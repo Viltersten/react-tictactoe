@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import './Board.scss';
 import Spot from '../spot/Spot';
 
-type Coord = { x: number, y: number };
 type Props = {};
-type State = { moves: Coord[], retractions: (() => void)[] }
+type State = { moves: (() => void)[] }
 
 class Board extends Component<Props, State> {
 
@@ -13,44 +12,36 @@ class Board extends Component<Props, State> {
 
     this.retract = this.retract.bind(this);
 
-    this.state = { moves: [], retractions: [] };
+    this.state = { moves: [] };
   }
 
-  width: number = 4;
-  height: number = 10;
+  width: number = 7;
+  height: number = 7;
 
-  callbacky = (coord: Coord, colorify: (p: boolean) => void, regret: () => void) => {
-    this.state.moves.push(coord);
-    this.state.retractions.push(regret);
-    this.setState({ moves: this.state.moves, retractions: this.state.retractions });
+  callbacky = (assign: (p: boolean) => void, retract: () => void) => {
+    this.state.moves.push(retract);
+    this.setState({ moves: this.state.moves });
 
-    const parity = this.state.moves.length % 2;
-    colorify(!!parity);
+    const player = this.state.moves.length % 2;
+    assign(!!player);
+
+    // todo I created time travel. You go and check victory yourself.
   }
 
   retract() {
-    console.log("move back");
-    if (this.state.moves.length === 0)
+    const regret = this.state.moves.pop();
+    if (!regret)
       return;
 
-    const recent = this.state.moves.pop();
-    const regret = this.state.retractions.pop();
-    console.log(recent, regret);
-
-    if (regret)
-      regret();
-
-
-
-    this.setState({ moves: this.state.moves, retractions: this.state.retractions });
-    // todo Notify the regarded spot. But how?!
+    regret();
+    this.setState({ moves: this.state.moves });
   }
 
   render() {
     return (
       <div className="board">
-        <div>There's been {this.state.moves.length} moves.</div>
-        <div onClick={this.retract}>Oopsie! Go back, quick as duck!</div>
+        <div>There's been {this.state.moves.length} moves made.</div>
+        <div onClick={this.retract}>Oopsie! <span className="regret">Go back</span>, quick as duck!</div>
         <table>
           <tbody>
             {
@@ -59,10 +50,7 @@ class Board extends Component<Props, State> {
                 <tr>
                   {
                     Array(this.width).fill("").map((a, x) =>
-                      <Spot
-                        key={x + "/" + y}
-                        callbacky={this.callbacky}
-                        coord={{ x: x, y: y }} />
+                      <Spot key={x + "/" + y} callbacky={this.callbacky} />
                     )
                   }
                 </tr>

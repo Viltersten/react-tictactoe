@@ -1,64 +1,51 @@
 import React, { Component } from 'react';
+import { Ownership } from './Ownership';
 import './Spot.scss';
 
-type Coord = { x: number, y: number };
 type Props = {
-  coord: Coord,
+  // todo Ask why this isn't eliminating the whine in console.
+  key: string,
   callbacky: (
-    c: Coord,
     p: (p: boolean) => void,
     r: () => void) => void,
 };
-type State = { taken: boolean, ownership: string, coord: Coord };
+type State = { ownership: Ownership };
 
 class Spot extends Component<Props, State> {
 
   constructor(props: any) {
     super(props);
 
-    this.clicky = this.clicky.bind(this);
-    this.colorify = this.colorify.bind(this);
-    this.regret = this.regret.bind(this);
+    // todo Explain what this does fundamentally.
+    this.pick = this.pick.bind(this);
+    this.assign = this.assign.bind(this);
+    this.retract = this.retract.bind(this);
 
-    this.state = {
-      coord: props.coord,
-      taken: false,
-      ownership: "empty"
-    }
+    this.state = { ownership: Ownership.Empty }
   }
 
-  colorify(player: boolean) {
-    const ownership = player ? "owned" : "enemy";
+  assign(player: boolean) {
+    const ownership = player
+      ? Ownership.Owned
+      : Ownership.Enemy;
 
-    this.setState({
-      taken: true,
-      ownership: ownership
-    });
+    this.setState({ ownership: ownership });
   }
 
-  regret() {
-
-    console.log("regretting the move");
-    console.log(this);
-
-    this.setState({
-      taken: false,
-      ownership: "empty"
-    });
+  retract() {
+    this.setState({ ownership: Ownership.Empty });
   }
 
-  clicky() {
-    if (this.state.taken)
-      return;
-
-    this.props.callbacky(this.state.coord, this.colorify, this.regret);
+  pick() {
+    if (this.state.ownership === Ownership.Empty)
+      this.props.callbacky(this.assign, this.retract);
   };
 
   render() {
 
     return (
       <td
-        onClick={this.clicky}
+        onClick={this.pick}
         className={"spot " + this.state.ownership}>
       </td>
     );
@@ -67,3 +54,4 @@ class Spot extends Component<Props, State> {
 }
 
 export default Spot;
+

@@ -4,7 +4,7 @@ import Spot from '../spot/Spot';
 
 type Coord = { x: number, y: number };
 type Props = {};
-type State = { moves: Coord[] }
+type State = { moves: Coord[], retractions: (() => void)[] }
 
 class Board extends Component<Props, State> {
 
@@ -13,15 +13,16 @@ class Board extends Component<Props, State> {
 
     this.retract = this.retract.bind(this);
 
-    this.state = { moves: [] };
+    this.state = { moves: [], retractions: [] };
   }
 
   width: number = 4;
   height: number = 10;
 
-  callbacky = (coord: Coord, colorify: (p: boolean) => void) => {
+  callbacky = (coord: Coord, colorify: (p: boolean) => void, regret: () => void) => {
     this.state.moves.push(coord);
-    this.setState({ moves: this.state.moves });
+    this.state.retractions.push(regret);
+    this.setState({ moves: this.state.moves, retractions: this.state.retractions });
 
     const parity = this.state.moves.length % 2;
     colorify(!!parity);
@@ -33,9 +34,15 @@ class Board extends Component<Props, State> {
       return;
 
     const recent = this.state.moves.pop();
-    console.log(recent);
+    const regret = this.state.retractions.pop();
+    console.log(recent, regret);
 
-    this.setState({ moves: this.state.moves });
+    if (regret)
+      regret();
+
+
+
+    this.setState({ moves: this.state.moves, retractions: this.state.retractions });
     // todo Notify the regarded spot. But how?!
   }
 
@@ -47,11 +54,11 @@ class Board extends Component<Props, State> {
         <table>
           <tbody>
             {
-              Array(this.height).fill(".").map((a, y) =>
+              Array(this.height).fill("").map((a, y) =>
 
                 <tr>
                   {
-                    Array(this.width).fill(".").map((a, x) =>
+                    Array(this.width).fill("").map((a, x) =>
                       <Spot
                         key={x + "/" + y}
                         callbacky={this.callbacky}

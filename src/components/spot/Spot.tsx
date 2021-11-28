@@ -18,6 +18,7 @@ class Spot extends Component<Props, State> {
 
     this.clicky = this.clicky.bind(this);
     this.colorify = this.colorify.bind(this);
+    this.regret = this.regret.bind(this);
 
     this.state = {
       coord: props.coord,
@@ -36,6 +37,10 @@ class Spot extends Component<Props, State> {
   }
 
   regret() {
+
+    console.log("regretting the move");
+    console.log(this);
+
     this.setState({
       taken: false,
       ownership: "empty"
